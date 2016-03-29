@@ -1,0 +1,10 @@
+myapp = oauth_app("github",key="57d14ac300958a816955",secret="90cd0d606e561f952bc1f6c4d667dbb51c9484ca")
+
+github_token <- oauth_endpoint(tokenURL,authorizeURL,accessTokenURL)
+token <- oauth2.0_token(oauth_endpoints("github"),myapp)
+sig <- sign_oauth1.0(myapp,token=token$oauth_token,token_secret=token$oauth_token_secret)
+repos <- GET("https://api.github.com/users/jtleek/repos", config(token=github_token))
+myjson <- content(repos)
+myjson2 <- jsonlite::fromJSON(toJSON(myjson))
+View(myjson2)
+stop_for_status(repos)
