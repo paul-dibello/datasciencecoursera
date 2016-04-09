@@ -15,16 +15,15 @@
 ###############################################################
 #load Libraries
 library(dplyr)
-library(plyr)
 library(data.table)
 # Download file and identify files
 zipped_file <- "zipped_file.zip"
-#download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip",zipped_file)
+download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip",zipped_file)
 content <- unzip(zipped_file, list = TRUE)
 
 # unzip files 
 unzip(zipped_file)
-#unlink(zipped_file)  #remove zip file
+unlink(zipped_file)  #remove zip file
 files <- content[,1]
 for (i in 1:length(files)) {
   # Look at only the txt files
@@ -111,6 +110,8 @@ mean_std_data_set <- select(merged_set,Activity,Subjects, contains("mean",ignore
 
 #Create my "Tity Data Set" with the average of each 
 #     variable for each activity and each subject
+library(plyr)
 tity_data <- ddply(mean_std_data_set, .(Subjects, Activity), numcolwise(mean))
-View(tity_data)
+#View(tity_data)
+write.table(tity_data,file = "tidy_data.txt", row.names = FALSE)
 
