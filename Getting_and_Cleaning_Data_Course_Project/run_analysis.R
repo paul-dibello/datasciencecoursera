@@ -19,7 +19,7 @@ library(plyr)
 library(data.table)
 # Download file and identify files
 zipped_file <- "zipped_file.zip"
-download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip",zipped_file)
+#download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip",zipped_file)
 content <- unzip(zipped_file, list = TRUE)
 
 # unzip files 
@@ -113,3 +113,4 @@ mean_std_data_set <- select(merged_set,Activity,Subjects, contains("mean",ignore
 #     variable for each activity and each subject
 tity_data <- ddply(mean_std_data_set, .(Subjects, Activity), numcolwise(mean))
 View(tity_data)
+
