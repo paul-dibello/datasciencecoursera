@@ -13,7 +13,9 @@
 #     independent tidy data set with the average of each 
 #     variable for each activity and each subject.
 ###############################################################
+#load Libraries
 library(dplyr)
+library(plyr)
 library(data.table)
 # Download file and identify files
 zipped_file <- "zipped_file.zip"
@@ -22,6 +24,7 @@ content <- unzip(zipped_file, list = TRUE)
 
 # unzip files 
 unzip(zipped_file)
+#unlink(zipped_file)  #remove zip file
 files <- content[,1]
 for (i in 1:length(files)) {
   # Look at only the txt files
@@ -70,23 +73,43 @@ for (i in 1:length(files)) {
      }
    }
 }
-# Rename the column names
-
-test_activities <- rename(test_activities, Activities = V1)
-train_activities <- rename(train_activities, Activities = V1)
+# Rename the column names with Descriptive Variable Names
+#
+#Funking stuff for duplicate Feature names
+features <- mutate(features, Activity = paste(V1,V2,sep = "-"))
+features <- select(features,V1,Activity)
+#Activities
+test_activities <- rename(test_activities, Activity_ID = V1)
+train_activities <- rename(train_activities, Activity_ID = V1)
+activity_labels <- rename(activity_labels, Activity_ID = V1, Activity = V2)
+#Subjects
 test_subjects <- rename(test_subjects, Subjects = V1)
 train_subjects <- rename(train_subjects, Subjects = V1)
-
+#
+#Train and Test Sets
 feature_list <- features[,2]
 train_columns <- names(train_set)
+test_columns <- names(test_set)
 setnames(train_set, old=train_columns, new= as.character(feature_list))
+setnames(test_set, old=test_columns, new= as.character(feature_list))
 
-# bind the subjects and activities to the output data
+#Replace Activity Values with Descriptive Activity Values
+test_activities <- merge(test_activities, activity_labels)
+test_activities <- select(test_activities, Activity)
+train_activities <- merge(train_activities, activity_labels)
+train_activities <- select(train_activities, Activity)
+
+# Bind the subjects and activities to the data sets
 train_act_sub_set <- cbind(train_activities, train_subjects,train_set)
 test_act_sub_set <- cbind(test_activities, test_subjects, test_set)
 
 #merge test and train sets
 merged_set <- rbind(train_act_sub_set,test_act_sub_set)
 
+# Extract only mean and standard Deviation Variables
+mean_std_data_set <- select(merged_set,Activity,Subjects, contains("mean",ignore.case=TRUE), contains("std()"))
 
-     
+#Create my "Tity Data Set" with the average of each 
+#     variable for each activity and each subject
+tity_data <- ddply(mean_std_data_set, .(Subjects, Activity), numcolwise(mean))
+View(tity_data)
